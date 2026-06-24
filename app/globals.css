@@ -1,0 +1,683 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* TACTICAL THEME — High-contrast Black / Volt Yellow / White (Valorant).
+       Black #0A0A0A · White #FFFFFF · Volt #ECE81A. Sharp corners (radius 0). */
+    --background: 0 0% 4%; /* #0A0A0A */
+    --foreground: 0 0% 100%; /* #FFFFFF */
+    --card: 0 0% 7%; /* #121212 */
+    --card-foreground: 0 0% 100%;
+    --primary: 0 0% 100%; /* white solid blocks */
+    --primary-foreground: 0 0% 4%;
+    --accent: 59 85% 51%; /* #ECE81A volt yellow */
+    --accent-foreground: 0 0% 4%; /* black text on volt */
+    --muted: 0 0% 10%; /* #1A1A1A */
+    --muted-foreground: 0 0% 68%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 59 85% 51%;
+    --radius: 0rem;
+  }
+
+  /* Site is dark-only; .dark mirrors :root so token classes resolve identically. */
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 4%;
+    --accent: 59 85% 51%;
+    --accent-foreground: 0 0% 4%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 68%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 59 85% 51%;
+  }
+
+  /* White "island" — crisp white tactical section (About/Work) inside the dark
+     site. Black text/frames, volt accent retained. */
+  .section-light {
+    --background: 0 0% 100%; /* #FFFFFF crisp white */
+    --foreground: 0 0% 4%; /* #0A0A0A */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
+    --primary: 0 0% 4%; /* black solid blocks on white */
+    --primary-foreground: 0 0% 100%;
+    --accent: 59 85% 51%;
+    --accent-foreground: 0 0% 4%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 28%;
+    --border: 0 0% 8%; /* heavy black tactical frames */
+    --input: 0 0% 8%;
+    --ring: 59 85% 51%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  /* Ultra-minimalist translucent cyberpunk scrollbar — applied globally to the
+     window and to any inner scrollable element (e.g. the card description
+     wrapper). Volt thumb on a transparent track; lights up on hover. */
+  * {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: hsl(var(--accent) / 0.2) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--accent) / 0.2);
+    border-radius: 9999px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent) / 0.5);
+  }
+  html {
+    scroll-behavior: smooth;
+    /* Offset anchor targets so the sticky navbar doesn't cover section headings. */
+    scroll-padding-top: 5rem;
+  }
+
+  /* Lenis momentum scrolling — disables native smooth while Lenis is active
+     (falls back to native CSS smooth for reduced-motion users). */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+}
+
+@layer utilities {
+  /* Subtle starfield/space backdrop for the hero — pure CSS, no asset needed. */
+  .bg-grid {
+    background-image: linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* ── Valorant tactical primitives ──────────────────────────────── */
+  /* Signature sliced-corner card (cut bottom-right). */
+  .clip-corner {
+    clip-path: polygon(
+      0 0,
+      100% 0,
+      100% calc(100% - 18px),
+      calc(100% - 18px) 100%,
+      0 100%
+    );
+  }
+  /* Both-diagonal "chip" (cut top-left + bottom-right) — buttons. */
+  .clip-chip {
+    clip-path: polygon(
+      10px 0,
+      100% 0,
+      100% calc(100% - 10px),
+      calc(100% - 10px) 100%,
+      0 100%,
+      0 10px
+    );
+  }
+  /* Top-right notch — tags / metadata chips. */
+  .clip-notch {
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  }
+  /* Asymmetric "ticket" card — diagonal cuts on the top-right + bottom-left,
+     softly rounded top-left + bottom-right. */
+  .clip-ticket {
+    clip-path: polygon(
+      0 14px,
+      6px 4px,
+      14px 0,
+      calc(100% - 24px) 0,
+      100% 24px,
+      100% calc(100% - 14px),
+      calc(100% - 6px) calc(100% - 4px),
+      calc(100% - 14px) 100%,
+      24px 100%,
+      0 calc(100% - 24px)
+    );
+  }
+  /* Digital scanlines for the hover glitch overlay. */
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.08) 0,
+      rgba(255, 255, 255, 0.08) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+  }
+  /* Angled cyber-HUD panel — 45° cuts on top-left + bottom-right. */
+  .clip-hud {
+    clip-path: polygon(
+      26px 0,
+      100% 0,
+      100% calc(100% - 26px),
+      calc(100% - 26px) 100%,
+      0 100%,
+      0 26px
+    );
+  }
+  /* Diagonal circuit tracks for section / panel backgrounds. */
+  .bg-circuit {
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgba(90, 80, 12, 0.1) 0 1px,
+        transparent 1px 28px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(90, 80, 12, 0.07) 0 1px,
+        transparent 1px 46px
+      );
+  }
+  /* Yellow/black tactical hazard stripes (decorative corner block). */
+  .stripes-hazard {
+    background-image: repeating-linear-gradient(
+      45deg,
+      hsl(var(--accent)) 0 9px,
+      #0a0a0a 9px 18px
+    );
+  }
+
+  /* Tactical grid backdrops (light lines on black / dark lines on white). */
+  .bg-tac-grid {
+    background-image: linear-gradient(
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 52px 52px;
+  }
+
+  /* Volt glow used on active/hover states. */
+  .glow-volt {
+    box-shadow: 0 0 15px rgba(236, 232, 26, 0.5);
+  }
+
+  /* Fine cinematic film-grain — inline SVG fractal noise (grayscale), tiled.
+     Pair with a low opacity + mix-blend-mode (overlay) on the layer. */
+  .hero-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 170px 170px;
+    mix-blend-mode: screen;
+  }
+
+  /* === Skills section: animated cyber backdrop === */
+  .skills-grid {
+    background-image: linear-gradient(
+        hsl(var(--accent) / 0.08) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, hsl(var(--accent) / 0.08) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: radial-gradient(
+      ellipse 72% 66% at 50% 45%,
+      #000 28%,
+      transparent 82%
+    );
+    mask-image: radial-gradient(
+      ellipse 72% 66% at 50% 45%,
+      #000 28%,
+      transparent 82%
+    );
+    animation: skills-grid-pan 24s linear infinite;
+  }
+  .skills-orb-a {
+    will-change: transform;
+    animation: skills-orb-a 16s ease-in-out infinite;
+  }
+  .skills-orb-b {
+    will-change: transform;
+    animation: skills-orb-b 20s ease-in-out infinite;
+  }
+  .skills-scan {
+    will-change: transform;
+    animation: skills-scan 8s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skills-grid,
+    .skills-orb-a,
+    .skills-orb-b,
+    .skills-scan {
+      animation: none;
+    }
+  }
+
+  /* === Projects section: frosted-glass volt glow field (GPU-light) === */
+  .projects-blob-a {
+    will-change: transform;
+    animation: proj-blob-a 24s ease-in-out infinite;
+  }
+  .projects-blob-b {
+    will-change: transform;
+    animation: proj-blob-b 30s ease-in-out infinite;
+  }
+  .projects-blob-c {
+    will-change: transform;
+    animation: proj-blob-c 27s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .projects-blob-a,
+    .projects-blob-b,
+    .projects-blob-c {
+      animation: none;
+    }
+  }
+}
+
+/* Skills backdrop — slow grid pan, drifting volt blooms, scanning beam. */
+@keyframes skills-grid-pan {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 46px 46px, 46px 46px;
+  }
+}
+@keyframes skills-orb-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(36px, -28px, 0) scale(1.12);
+  }
+}
+@keyframes skills-orb-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-30px, 22px, 0) scale(1.1);
+  }
+}
+@keyframes skills-scan {
+  0% {
+    transform: translateY(-10vh);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh);
+    opacity: 0;
+  }
+}
+
+/* Slow drift for the frosted Projects glow blobs (transform-only = composited). */
+@keyframes proj-blob-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(9%, -7%, 0) scale(1.18);
+  }
+}
+@keyframes proj-blob-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-8%, 6%, 0) scale(1.12);
+  }
+}
+@keyframes proj-blob-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(6%, 9%, 0) scale(0.9);
+  }
+}
+
+/* === About panel: glitch reassemble (intro) / glitch-shatter (outro) === */
+.glitch-frame {
+  opacity: 1; /* safety: resting state is always readable */
+  will-change: transform, opacity, clip-path, filter;
+}
+.glitch-frame[data-glitch="pre"] {
+  opacity: 0; /* hidden, no animation, until the first reveal */
+}
+.glitch-frame[data-glitch="in"] {
+  animation: about-glitch-in 1s both;
+}
+.glitch-frame[data-glitch="shown"] {
+  opacity: 1; /* locked solid & still after the intro — fully readable */
+}
+.glitch-frame[data-glitch="out"] {
+  opacity: 0;
+  animation: about-glitch-out 0.66s both;
+}
+.glitch-frame[data-glitch="static"] {
+  opacity: 1;
+}
+
+/* Reassemble: sliced bands jump in with chromatic split + flicker, then lock. */
+@keyframes about-glitch-in {
+  0% {
+    opacity: 0;
+    clip-path: inset(45% 0 52% 0);
+    transform: translate3d(-12px, 0, 0) skewX(-8deg);
+    filter: drop-shadow(4px 0 hsl(var(--accent)))
+      drop-shadow(-4px 0 rgba(255, 255, 255, 0.85));
+    animation-timing-function: steps(1, end);
+  }
+  10% {
+    opacity: 0.9;
+    clip-path: inset(6% 0 80% 0);
+    transform: translate3d(10px, 0, 0) skewX(5deg);
+    animation-timing-function: steps(1, end);
+  }
+  20% {
+    opacity: 0.5;
+    clip-path: inset(72% 0 6% 0);
+    transform: translate3d(-8px, 0, 0);
+    animation-timing-function: steps(1, end);
+  }
+  32% {
+    opacity: 1;
+    clip-path: inset(22% 0 28% 0);
+    transform: translate3d(6px, 0, 0) skewX(-3deg);
+    filter: drop-shadow(3px 0 hsl(var(--accent)))
+      drop-shadow(-3px 0 rgba(255, 255, 255, 0.85));
+    animation-timing-function: steps(1, end);
+  }
+  44% {
+    opacity: 0.8;
+    clip-path: inset(0 0 55% 0);
+    transform: translate3d(-5px, 0, 0);
+    animation-timing-function: steps(1, end);
+  }
+  56% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translate3d(3px, 0, 0);
+    filter: drop-shadow(2px 0 hsl(var(--accent)))
+      drop-shadow(-2px 0 rgba(255, 255, 255, 0.7));
+    animation-timing-function: steps(1, end);
+  }
+  70% {
+    transform: translate3d(-2px, 0, 0);
+    filter: drop-shadow(1px 0 hsl(var(--accent)))
+      drop-shadow(-1px 0 rgba(255, 255, 255, 0.5));
+    animation-timing-function: ease-out;
+  }
+  100% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translate3d(0, 0, 0) skewX(0);
+    filter: none;
+  }
+}
+
+/* Shatter: glitch apart into bands and drift off, chromatic + fading. */
+@keyframes about-glitch-out {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translate3d(0, 0, 0);
+    animation-timing-function: steps(1, end);
+  }
+  20% {
+    opacity: 0.85;
+    clip-path: inset(0 0 62% 0);
+    transform: translate3d(7px, 0, 0) skewX(4deg);
+    filter: drop-shadow(3px 0 hsl(var(--accent)))
+      drop-shadow(-3px 0 rgba(255, 255, 255, 0.85));
+    animation-timing-function: steps(1, end);
+  }
+  40% {
+    opacity: 0.6;
+    clip-path: inset(55% 0 8% 0);
+    transform: translate3d(-10px, 0, 0);
+    animation-timing-function: steps(1, end);
+  }
+  60% {
+    opacity: 0.7;
+    clip-path: inset(20% 0 42% 0);
+    transform: translate3d(12px, 0, 0) skewX(-6deg);
+    filter: drop-shadow(5px 0 hsl(var(--accent)))
+      drop-shadow(-5px 0 rgba(255, 255, 255, 0.85));
+    animation-timing-function: steps(1, end);
+  }
+  80% {
+    opacity: 0.3;
+    clip-path: inset(46% 0 50% 0);
+    transform: translate3d(-15px, 0, 0);
+    animation-timing-function: steps(1, end);
+  }
+  100% {
+    opacity: 0;
+    clip-path: inset(48% 0 50% 0);
+    transform: translate3d(20px, 0, 0) skewX(8deg);
+    filter: drop-shadow(7px 0 hsl(var(--accent)))
+      drop-shadow(-7px 0 rgba(255, 255, 255, 0.85));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glitch-frame[data-glitch="pre"],
+  .glitch-frame[data-glitch="in"],
+  .glitch-frame[data-glitch="out"] {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Terminal cursor blink (typewriter). */
+@keyframes terminal-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* High-tier Valorant glitch on the ECHO title — RGB split (chromatic
+   aberration) + horizontal block displacement via rapid clip-path slicing.
+   Two duplicated pseudo layers (cyan + magenta) animate only while hovered. */
+.echo-title {
+  position: relative;
+}
+.echo-title::before,
+.echo-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  background: #000; /* hero black → clean, opaque slices */
+  overflow: hidden;
+  pointer-events: none;
+  clip-path: inset(50%); /* fully hidden until hover */
+}
+.echo-title:hover {
+  animation: echo-main-glitch 2s steps(1, end) infinite;
+}
+.echo-title:hover::before {
+  left: 2px;
+  color: #ece81a; /* volt-yellow channel */
+  text-shadow: 0 0 8px rgba(236, 232, 26, 0.4);
+  animation: echo-glitch-1 2s steps(1, end) infinite;
+}
+.echo-title:hover::after {
+  left: -2px;
+  color: #000; /* black dropout slices */
+  animation: echo-glitch-2 2s steps(1, end) infinite;
+}
+/* Sudden burst (~0.15s) then a pause — fires ~once per second. Each burst mixes
+   HORIZONTAL bars (inset top/bottom) and VERTICAL bars (inset left/right) with
+   multi-direction displacement. Hidden (inset 50%) during the rest period. */
+@keyframes echo-glitch-1 {
+  0% { clip-path: inset(15% 0 60% 0); transform: translate(-5px, 3px); } /* H */
+  1.5% { clip-path: inset(0 55% 0 18%); transform: translate(4px, -4px); } /* V */
+  3% { clip-path: inset(40% 0 35% 0); transform: translate(-4px, -3px); } /* H */
+  4.5% { clip-path: inset(0 20% 0 60%); transform: translate(4px, 5px); } /* V */
+  6% { clip-path: inset(72% 0 8% 0); transform: translate(-3px, -5px); } /* H */
+  7%,
+  100% { clip-path: inset(50%); transform: translate(0, 0); }
+}
+@keyframes echo-glitch-2 {
+  0%,
+  100% { clip-path: inset(50%); transform: translate(0, 0); }
+  1% { clip-path: inset(0 18% 0 55%); transform: translate(5px, -3px); } /* V */
+  2.5% { clip-path: inset(18% 0 65% 0); transform: translate(-5px, 4px); } /* H */
+  4% { clip-path: inset(0 60% 0 22%); transform: translate(4px, 3px); } /* V */
+  5.5% { clip-path: inset(8% 0 80% 0); transform: translate(-4px, -5px); } /* H */
+  7% { clip-path: inset(50%); transform: translate(0, 0); }
+}
+/* The white text itself fractures during the burst — chunks clipped out plus a
+   sharp jolt/skew — then snaps back to clean for the long rest period. */
+@keyframes echo-main-glitch {
+  0% { transform: translate(0, 0) skewX(0); clip-path: inset(0 0 0 0); }
+  1% { transform: translate(-3px, 1px) skewX(-6deg); clip-path: inset(0 0 52% 0); }
+  2% { transform: translate(3px, -2px) skewX(4deg); clip-path: inset(40% 0 0 0); }
+  3% { transform: translate(-2px, 1px) skewX(-3deg); clip-path: inset(22% 0 28% 0); }
+  4% { transform: translate(3px, 0) skewX(5deg); clip-path: inset(0 0 0 0); }
+  5% { transform: translate(-3px, -1px) skewX(-4deg); clip-path: inset(58% 0 12% 0); }
+  6% { transform: translate(2px, 1px) skewX(2deg); clip-path: inset(10% 0 62% 0); }
+  7%,
+  100% { transform: translate(0, 0) skewX(0); clip-path: inset(0 0 0 0); }
+}
+
+/* Fast minimalist flicker for the profile frame's corner brackets on hover. */
+@keyframes bracket-flicker {
+  0% { opacity: 1; transform: translate(0, 0); }
+  15% { opacity: 0.3; transform: translate(1.5px, -1px); }
+  30% { opacity: 1; transform: translate(-1.5px, 1px); }
+  45% { opacity: 0.5; transform: translate(1px, 1px); }
+  60% { opacity: 1; transform: translate(-1px, -1px); }
+  100% { opacity: 1; transform: translate(0, 0); }
+}
+
+/* Brief digital scanline glitch across the agent card on hover. */
+@keyframes scan-glitch {
+  0% { opacity: 0; transform: translateY(-5px); }
+  20% { opacity: 0.85; }
+  40% { opacity: 0.2; transform: translateY(4px); }
+  60% { opacity: 0.7; transform: translateY(-2px); }
+  100% { opacity: 0; transform: translateY(0); }
+}
+
+/* Flashing STATUS dot. */
+@keyframes status-blink {
+  0%,
+  65% { opacity: 1; }
+  66%,
+  100% { opacity: 0.2; }
+}
+
+/* ── Global scroll-reveal (a JS IntersectionObserver adds .is-visible) ──────
+   Premium Apple timing curve — gentle drift up + seamless opacity fade. */
+.reveal {
+  opacity: 0;
+  transform: translate(var(--rx, 0), var(--ry, 25px));
+  transition:
+    opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* Staggered children (lists, tags) — top→bottom / left→right. */
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+    transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.reveal-stagger.is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.is-visible > *:nth-child(1) { transition-delay: 0.05s; }
+.reveal-stagger.is-visible > *:nth-child(2) { transition-delay: 0.11s; }
+.reveal-stagger.is-visible > *:nth-child(3) { transition-delay: 0.17s; }
+.reveal-stagger.is-visible > *:nth-child(4) { transition-delay: 0.23s; }
+.reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 0.29s; }
+.reveal-stagger.is-visible > *:nth-child(6) { transition-delay: 0.35s; }
+.reveal-stagger.is-visible > *:nth-child(n + 7) { transition-delay: 0.4s; }
+
+/* HUD card — geometric border draws itself on reveal (then content boots in).
+   Defined after .reveal so its transition (incl. transform) wins when combined. */
+.reveal-card {
+  background-image:
+    linear-gradient(90deg, hsl(var(--accent)), hsl(var(--accent))),
+    linear-gradient(90deg, hsl(var(--accent)), hsl(var(--accent))),
+    linear-gradient(0deg, hsl(var(--accent)), hsl(var(--accent))),
+    linear-gradient(0deg, hsl(var(--accent)), hsl(var(--accent)));
+  background-repeat: no-repeat;
+  background-position: 0 0, 0 100%, 0 0, 100% 0;
+  background-size: 0 1px, 0 1px, 1px 0, 1px 0;
+  transition:
+    transform 0.8s cubic-bezier(0.25, 1, 0.5, 1),
+    background-size 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  transition-delay: var(--reveal-delay, 0s);
+}
+.reveal-card.is-visible {
+  background-size: 100% 1px, 100% 1px, 1px 100%, 1px 100%;
+}
+
+/* iOS glassmorphism — translucent dark card; background warps through it.
+   Unlayered so it overrides Tailwind's bg-card/border utilities. */
+.glass {
+  background: rgba(10, 10, 10, 0.4);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Respect users who prefer reduced motion: neutralize transforms/animations. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
